@@ -1,6 +1,12 @@
 package pro1;
 
+import com.google.gson.Gson;
 import pro1.apiDataModel.ActionsList;
+import pro1.apiDataModel.TeachersList;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main6 {
 
@@ -10,10 +16,16 @@ public class Main6 {
 
     public static long idOfBestTeacher(String department, int year)
     {
-        // TODO 6.1 (navazuje na TODO 3):
-        //  - Stáhni seznam akcí na katedře (jiná data nepoužívat)
-        //  - Najdi učitele s nejvyšším "score" a vrať jeho ID
+        String json = Api.getActionsByDepartment(department, year);
 
-        return 0;
+        ActionsList actions = new Gson().fromJson(json, ActionsList.class);
+
+        HashMap<Long, Integer> dictionary = new HashMap<Long, Integer>();
+        actions.items.stream().forEach(x -> {
+            Integer v = dictionary.getOrDefault(x.teacherId,0);
+            dictionary.put(x.teacherId, x.personsCount + v);
+        });
+
+        return dictionary.entrySet().stream().max(Comparator.comparing(Map.Entry::getValue)).get().getKey();
     }
 }
